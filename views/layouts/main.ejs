@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/tt-norms" rel="stylesheet">
+
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="casino-navbar">
+        <div class="container">
+            <div class="navbar-container">
+                <a class="navbar-brand" href="/">
+                    <img src="/assets/imgs/logo.png">
+                </a>
+                
+                <div class="nav-menu">
+                    <a href="/">Início</a>
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <a href="/dashboard">Dashboard</a>
+                        <a href="/games">Jogos</a>
+                    <% } %>
+                </div>
+                
+                <div class="navbar-actions">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <div class="balance-display">
+                            <span>Saldo:</span>
+                            <span class="balance-amount" id="navBalance">R$ 0,00</span>
+                        </div>
+                        <div class="user-bubble" onclick="openUserModal()">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    <% } else { %>
+                        <div class="auth-buttons">
+                            <button class="btn-casino secondary" onclick="openLoginModal()">Login</button>
+                            <button class="btn-casino primary" onclick="openRegisterModal()">Cadastrar</button>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-bottom-menu">
+        <div class="mobile-menu-items">
+            <a href="/" class="mobile-menu-item">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/dashboard" class="mobile-menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/games" class="mobile-menu-item">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Jogos</span>
+                </a>
+                <button class="mobile-menu-item" onclick="openUserModal()">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </button>
+            <% } else { %>
+                <button class="mobile-menu-item" onclick="openLoginModal()">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </button>
+                <button class="mobile-menu-item" onclick="openRegisterModal()">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Cadastrar</span>
+                </button>
+            <% } %>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <%- body %>
+    </main>
+
+    <% if (typeof user !== 'undefined' && user) { %>
+    <div class="casino-modal" id="userModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 class="modal-title">Minha Conta</h2>
+                <button class="modal-close" onclick="closeModal('userModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-tabs">
+                <button class="modal-tab active" onclick="switchTab('profile')">
+                    <i class="fas fa-user"></i> Perfil
+                </button>
+                <button class="modal-tab" onclick="switchTab('deposit')">
+                    <i class="fas fa-plus"></i> Depósito
+                </button>
+                <button class="modal-tab" onclick="switchTab('withdraw')">
+                    <i class="fas fa-minus"></i> Saque
+                </button>
+                <button class="modal-tab" onclick="switchTab('transactions')">
+                    <i class="fas fa-history"></i> Transações
+                </button>
+                <button class="modal-tab" onclick="switchTab('settings')">
+                    <i class="fas fa-cog"></i> Configurações
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="tab-content active" id="profileTab">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profileAvatar">
+                            <%= user.username.charAt(0).toUpperCase() %>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileUsername"><%= user.username %></h3>
+                            <p class="profile-email" id="profileEmail"><%= user.email %></p>
+                        </div>
+                    </div>
+                    
+                    <div class="balance-cards">
+                        <div class="balance-card primary">
+                            <div class="balance-label">Saldo Disponível</div>
+                            <div class="balance-value" id="profileAvailableBalance">R$ 0,00</div>
+                        </div>
+                        <div class="balance-card warning">
+                            <div class="balance-label">Saldo Bloqueado</div>
+                            <div class="balance-value" id="profileBlockedBalance">R$ 0,00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="switchTab('deposit')">
+                            <i class="fas fa-plus"></i>
+                            <div>Depositar</div>
+                        </div>
+                        <div class="quick-action" onclick="switchTab('withdraw')">
+                            <i class="fas fa-minus"></i>
+                            <div>Sacar</div>
+                        </div>
+                        <div class="quick-action" onclick="switchTab('transactions')">
+                            <i class="fas fa-history"></i>
+                            <div>Histórico</div>
+                        </div>
+                        <div class="quick-action" onclick="switchTab('settings')">
+                            <i class="fas fa-cog"></i>
+                            <div>Configurações</div>
+                        </div>
+                         <div class="quick-action" onclick="switchTab('transactions')">
+                            <i class="fas fa-history"></i>
+                            <div>Histórico</div>
+                        </div>
+                        <div class="quick-action" onclick="switchTab('settings')">
+                            <i class="fas fa-cog"></i>
+                            <div>Configurações</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="depositTab">
+                    <div class="form-container">
+                        <h3 class="form-header green">
+                            <i class="fas fa-plus"></i> Fazer Depósito
+                        </h3>
+                        
+                        <form id="modalDepositForm">
+                            <div class="form-group">
+                                <label class="form-label">Valor do Depósito</label>
+                                <div class="input-group">
+                                    <div class="input-prefix">R$</div>
+                                    <input type="number" class="form-input" name="amount" 
+                                           placeholder="0,00" min="0.01" step="0.01" required>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-casino primary full-width">
+                                <i class="fas fa-plus"></i> Depositar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+
+                <div class="tab-content" id="withdrawTab">
+                    <div class="form-container">
+                        <h3 class="form-header orange">
+                            <i class="fas fa-minus"></i> Fazer Saque
+                        </h3>
+                        
+                        <div class="balance-info">
+                            <span>Saldo Disponível:</span>
+                            <strong id="withdrawAvailableBalance">R$ 0,00</strong>
+                        </div>
+                        
+                        <form id="modalWithdrawForm">
+                            <div class="form-group">
+                                <label class="form-label">Valor do Saque</label>
+                                <div class="input-group">
+                                    <div class="input-prefix">R$</div>
+                                    <input type="number" class="form-input" name="amount" 
+                                           placeholder="0,00" min="0.01" step="0.01" required>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-casino primary orange full-width">
+                                <i class="fas fa-minus"></i> Sacar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="transactionsTab">
+                    <h3 class="form-header">
+                        <i class="fas fa-history"></i> Histórico de Transações
+                    </h3>
+                    
+                    <div id="transactionsLoading" class="loading-container">
+                        <i class="fas fa-spinner fa-spin loading-spinner"></i>
+                        <p class="loading-text">Carregando transações...</p>
+                    </div>
+                    
+                    <div class="transactions-list" id="transactionsList" style="display: none;"></div>
+                    
+                    <div class="pagination" id="transactionsPagination" style="display: none;"></div>
+                </div>
+                
+                <div class="tab-content" id="settingsTab">
+                    <h3 class="form-header">
+                        <i class="fas fa-cog"></i> Configurações da Conta
+                    </h3>
+                    
+                    <div class="settings-container">
+                        <div class="settings-section">
+                            <h4 class="green">Informações Pessoais</h4>
+                            <div class="form-group">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-input" value="<%= user.username %>" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" value="<%= user.email %>" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 class="orange">Ações da Conta</h4>
+                            <button class="btn-casino secondary full-width" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> Sair da Conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+
+    <div class="casino-modal" id="loginModal">
+        <div class="modal-content medium auth-bg">
+            <div class="modal-header">
+                <h2 class="modal-title">Entrar na Conta</h2>
+                <button class="modal-close" onclick="closeModal('loginModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-container">
+                    <form id="modalLoginForm">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Senha</label>
+                            <input type="password" class="form-input" name="password" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-casino primary full-width">
+                            <i class="fas fa-sign-in-alt"></i> Entrar
+                        </button>
+                    </form>
+                    
+                    <div class="auth-switch">
+                        <span>Não tem uma conta?</span>
+                        <button class="link-button" onclick="closeModal('loginModal'); openRegisterModal();">
+                            Cadastre-se aqui
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="casino-modal" id="registerModal">
+        <div class="modal-content medium auth-bg">
+            <div class="modal-header">
+                <h2 class="modal-title">Criar Conta</h2>
+                <button class="modal-close" onclick="closeModal('registerModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-container">
+                    <form id="modalRegisterForm">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-input" name="username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Senha</label>
+                            <input type="password" class="form-input" name="password" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Confirmar Senha</label>
+                            <input type="password" class="form-input" name="confirmPassword" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-casino primary full-width">
+                            <i class="fas fa-user-plus"></i> Registrar
+                        </button>
+                    </form>
+                    
+                    <div class="auth-switch">
+                        <span>Já tem uma conta?</span>
+                        <button class="link-button" onclick="closeModal('registerModal'); openLoginModal();">
+                            Entre aqui
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertContainer" class="alert-container"></div>
+
+    <script src="/js/casino-modal.js"></script>
+    <script src="/js/main.js"></script>
+
+    <div class="footer">
+        <div class="footer-content">
+
+            <div class="footer-top">
+                <div class="footer-logo">
+                    <img src="/assets/imgs/logo.svg" class="footer-logo-small">
+                </div>
+                <div class="footer-divider"></div>
+            </div>
+            
+            <div class="crypto-logos">
+                <img src="/assets/imgs/crypto/bitcoin.svg" alt="Bitcoin">
+                <img src="/assets/imgs/crypto/ethereum.svg" alt="Ethereum">
+                <img src="/assets/imgs/crypto/tether.svg" alt="Tether">
+                <img src="/assets/imgs/crypto/tron.svg" alt="Tron">
+                <img src="/assets/imgs/crypto/ripple.svg" alt="Ripple">
+                <img src="/assets/imgs/bank/logo-pix.png" alt="Pix">
+            </div>
+            
+            <div class="footer-divider"></div>
+            
+            <div class="partner-logos">
+                <img src="/assets/imgs/partners/cgf.svg" alt="CGF">
+                <img src="/assets/imgs/partners/xz.svg" alt="XZ">
+            </div>
+            
+            <div class="footer-divider"></div>
+            
+            <div class="footer-bottom">
+            <div class="copyright">© 2025 Rivale | Todos os direitos reservados.</div>
+            <div class="legal-text">Rivale.su pertence e é operado pela Long Island NV, número de registro: 157372, endereço registrado: Korporaalweg 10, Willemstad, Curaçao. A empresa de agentes de pagamento é a Unionstar Limited com endereço 7-9 Riga Feraiou, LIZANTIA COURT, Office 310, Agioi Omologites, 1087 Nicosia, Chipre e número de registro: HE 347341</div>
+            <div class="contact-links">
+                <span>Apoio <a href="mailto:support@Rivale.su">support@Rivale.su</a></span>
+                <span> | Parceiros <a href="mailto:partners@Rivale.su">partners@Rivale.su</a></span>
+                <span> | Imprensa <a href="mailto:press@Rivale.su">press@Rivale.su</a></span>
+            </div>
+            </div>
+        </div>
+        </div>
+</body>
+</html>

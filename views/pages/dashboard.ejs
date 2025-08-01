@@ -1,0 +1,188 @@
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">
+                Bem-vindo de volta, <strong><%= user.username %></strong>!
+            </p>
+        </div>
+    </div>
+
+    <!-- Balance Cards -->
+    <div class="dashboard-cards">
+        <div class="dashboard-card available">
+            <div class="dashboard-card-icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <h6 class="dashboard-card-label">Saldo Disponível</h6>
+            <h2 class="dashboard-card-value" id="dashboardAvailableBalance">R$ 0,00</h2>
+        </div>
+        
+        <div class="dashboard-card blocked">
+            <div class="dashboard-card-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h6 class="dashboard-card-label">Saldo Bloqueado</h6>
+            <h2 class="dashboard-card-value" id="dashboardBlockedBalance">R$ 0,00</h2>
+        </div>
+        
+        <div class="dashboard-card bets">
+            <div class="dashboard-card-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h6 class="dashboard-card-label">Total de Apostas</h6>
+            <h2 class="dashboard-card-value" id="dashboardTotalBets">0</h2>
+        </div>
+        
+        <div class="dashboard-card wins">
+            <div class="dashboard-card-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h6 class="dashboard-card-label">Total Ganho</h6>
+            <h2 class="dashboard-card-value" id="dashboardTotalWins">R$ 0,00</h2>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-card">
+        <h3 class="section-title">
+            <i class="fas fa-bolt"></i>
+            Ações Rápidas
+        </h3>
+        
+        <div class="quick-actions-grid">
+            <div class="quick-action" onclick="openUserModal(); switchTab('deposit')">
+                <i class="fas fa-plus"></i>
+                <div class="quick-action-item">Depositar</div>
+                <div class="quick-action-description">Adicionar fundos</div>
+            </div>
+            
+            <div class="quick-action" onclick="openUserModal(); switchTab('withdraw')">
+                <i class="fas fa-minus"></i>
+                <div class="quick-action-item">Sacar</div>
+                <div class="quick-action-description">Retirar fundos</div>
+            </div>
+            
+            <div class="quick-action" onclick="openUserModal(); switchTab('transactions')">
+                <i class="fas fa-history"></i>
+                <div class="quick-action-item">Histórico</div>
+                <div class="quick-action-description">Ver transações</div>
+            </div>
+            
+            <a href="/games" class="quick-action">
+                <i class="fas fa-gamepad"></i>
+                <div class="quick-action-item">Jogos</div>
+                <div class="quick-action-description">Iniciar apostas</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i class="fas fa-clock"></i>
+                Transações Recentes
+            </h3>
+            <button class="btn-casino secondary small" onclick="openUserModal(); switchTab('transactions')">
+                Ver Todas
+            </button>
+        </div>
+        
+        <div id="dashboardTransactionsLoading" class="loading-container">
+            <i class="fas fa-spinner fa-spin loading-spinner"></i>
+            <p class="loading-text">Carregando transações...</p>
+        </div>
+        
+        <div id="dashboardTransactionsList" style="display: none;"></div>
+        
+        <div id="dashboardNoTransactions" class="empty-state" style="display: none;">
+            <i class="fas fa-info-circle"></i>
+            <p>Nenhuma transação encontrada.</p>
+            <button class="btn-casino primary" onclick="openUserModal(); switchTab('deposit')">
+                <i class="fas fa-plus"></i> Fazer Primeiro Depósito
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+});
+
+async function loadDashboardData() {
+    try {
+        const balanceResponse = await fetch('/api/balance');
+        const balanceResult = await balanceResponse.json();
+        
+        if (balanceResult.success) {
+            const data = balanceResult.data;
+            document.getElementById('dashboardAvailableBalance').textContent = formatCurrency(data.available_balance);
+            document.getElementById('dashboardBlockedBalance').textContent = formatCurrency(data.blocked_balance);
+        }
+        
+        const transactionsResponse = await fetch('/api/me/transactions?limit=5');
+        const transactionsResult = await transactionsResponse.json();
+        
+        document.getElementById('dashboardTransactionsLoading').style.display = 'none';
+        
+        if (transactionsResult.success && transactionsResult.data.transactions.length > 0) {
+            renderDashboardTransactions(transactionsResult.data.transactions);
+            document.getElementById('dashboardTransactionsList').style.display = 'block';
+        } else {
+            document.getElementById('dashboardNoTransactions').style.display = 'block';
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar dados do dashboard:', error);
+        document.getElementById('dashboardTransactionsLoading').style.display = 'none';
+        document.getElementById('dashboardNoTransactions').style.display = 'block';
+    }
+}
+
+function renderDashboardTransactions(transactions) {
+    const listEl = document.getElementById('dashboardTransactionsList');
+    if (!listEl) return;
+
+    const html = transactions.map(transaction => {
+        const isPositive = ['deposit', 'win', 'bonus', 'referral'].includes(transaction.type);
+        const icon = getTransactionIcon(transaction.type);
+        const iconClass = transaction.type;
+        
+        return `
+            <div class="transaction-item">
+                <div class="transaction-icon ${iconClass}">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="transaction-info">
+                    <div class="transaction-type">
+                        ${getTransactionTypeLabel(transaction.type)}
+                    </div>
+                    <div class="transaction-date">
+                        ${formatDate(transaction.created_at)}
+                    </div>
+                </div>
+                <div class="transaction-amount ${isPositive ? 'positive' : 'negative'}">
+                    ${isPositive ? '+' : '-'}${formatCurrency(Math.abs(transaction.amount))}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    listEl.innerHTML = html;
+}
+
+function getTransactionIcon(type) {
+    const icons = {
+        'deposit': 'fas fa-plus',
+        'withdraw': 'fas fa-minus',
+        'bet': 'fas fa-dice',
+        'win': 'fas fa-trophy',
+        'bonus': 'fas fa-gift',
+        'referral': 'fas fa-users',
+        'adjustment': 'fas fa-cog'
+    };
+    return icons[type] || 'fas fa-circle';
+}
+</script>

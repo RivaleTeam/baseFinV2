@@ -1,0 +1,113 @@
+ <div class="game-container">
+
+    <div class="game-main-area">
+        <div class="scratch-card-wrapper">
+            <div class="scratch-card" id="scratchCard">
+                <canvas id="scratchCanvas"></canvas>
+                <div class="scratch-symbols" id="scratchSymbols">
+                </div>
+                <div class="scratch-overlay" id="scratchOverlay">
+                    <div class="scratch-instruction">
+                        <i class="fas fa-hand-pointer"></i>
+                        <p>Toque para jogar!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="game-controls-panel">
+        <div class="game-header">
+            <div class="game-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="totalGames">0</span>
+                    <span class="stat-label">Jogos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="totalWins">0</span>
+                    <span class="stat-label">Vitórias</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="winRate">0%</span>
+                    <span class="stat-label">Taxa</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-cost">
+            <i class="fas fa-coins"></i>
+            <span>Custo: R$ <%= gameCost.toFixed(2) %></span>
+        </div>
+        
+        <div class="control-buttons">
+            <button class="btn-play" id="playBtn">
+                <i class="fas fa-play"></i>
+                <span>JOGAR</span>
+            </button>
+            
+            <button class="btn-auto" id="autoBtn">
+                <i class="fas fa-magic"></i>
+                <span>AUTO</span>
+            </button>
+        </div>
+
+        <div class="auto-controls" id="autoControls">
+            <div class="auto-settings">
+                <input type="number" id="autoGames" min="1" max="50" value="10" placeholder="Jogos">
+                <button class="btn-start-auto" id="startAutoBtn">
+                    <i class="fas fa-play-circle"></i>
+                    <span>INICIAR</span>
+                </button>
+                <button class="btn-stop-auto" id="stopAutoBtn">
+                    <i class="fas fa-stop-circle"></i>
+                    <span>PARAR</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="prize-display" id="prizeDisplay">
+            <div class="prize-label">Prêmio:</div>
+            <div class="prize-amount" id="prizeAmount">R$ 0,00</div>
+        </div>
+    </div>
+
+    <div class="results-section">
+        <div class="results-header">
+            <h3><i class="fas fa-history"></i> Últimos Resultados</h3>
+            <button class="btn-clear" id="clearHistoryBtn">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="results-container" id="resultsContainer">
+            <div class="empty-results">
+                <i class="fas fa-ticket-alt"></i>
+                <p>Nenhum jogo ainda</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="win-modal" id="winModal">
+    <div class="win-content">
+        <div class="win-celebration">
+            <div class="win-fireworks">🎉</div>
+            <div class="win-amount" id="winAmount">R$ 0,00</div>
+            <div class="win-symbols" id="winSymbols"></div>
+            <div class="win-message">PARABÉNS! VOCÊ GANHOU!</div>
+            <button class="btn-collect" id="collectBtn">
+                <i class="fas fa-hand-holding-usd"></i>
+                COLETAR PRÊMIO
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Gerando raspadinha...</p>
+    </div>
+</div>
+
+<script src="/js/script.js"></script>

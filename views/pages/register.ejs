@@ -1,0 +1,100 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="h4">Criar Conta</h2>
+                        <p class="text-muted">Registre-se para começar</p>
+                    </div>
+                    
+                    <div id="alert-container"></div>
+                    
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirmar Senha</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100" id="registerBtn">
+                            <i class="fas fa-user-plus"></i> Registrar
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Já tem uma conta? 
+                            <a href="/login" class="text-decoration-none">Entre aqui</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('registerBtn');
+    const alertContainer = document.getElementById('alert-container');
+    
+    // Desabilitar botão
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+    
+    // Limpar alertas
+    alertContainer.innerHTML = '';
+    
+    try {
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        const response = await fetch('/api/session/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Conta criada com sucesso!', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
+        } else {
+            showAlert(result.message, 'danger');
+            if (result.errors) {
+                result.errors.forEach(error => {
+                    showAlert(`${error.field}: ${error.message}`, 'warning');
+                });
+            }
+        }
+    } catch (error) {
+        showAlert('Erro de conexão. Tente novamente.', 'danger');
+    } finally {
+        // Reabilitar botão
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Registrar';
+    }
+});
+</script>

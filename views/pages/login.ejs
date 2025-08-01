@@ -1,0 +1,90 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="h4">Entrar na Conta</h2>
+                        <p class="text-muted">Acesse sua conta para continuar</p>
+                    </div>
+                    
+                    <div id="alert-container"></div>
+                    
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100" id="loginBtn">
+                            <i class="fas fa-sign-in-alt"></i> Entrar
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Não tem uma conta? 
+                            <a href="/register" class="text-decoration-none">Registre-se aqui</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('loginBtn');
+    const alertContainer = document.getElementById('alert-container');
+    
+    // Desabilitar botão
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+    
+    // Limpar alertas
+    alertContainer.innerHTML = '';
+    
+    try {
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        const response = await fetch('/api/session/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Login realizado com sucesso!', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
+        } else {
+            showAlert(result.message, 'danger');
+            if (result.errors) {
+                result.errors.forEach(error => {
+                    showAlert(`${error.field}: ${error.message}`, 'warning');
+                });
+            }
+        }
+    } catch (error) {
+        showAlert('Erro de conexão. Tente novamente.', 'danger');
+    } finally {
+        // Reabilitar botão
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+    }
+});
+</script>
